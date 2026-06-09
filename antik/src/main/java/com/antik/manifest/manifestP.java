@@ -1,4 +1,4 @@
-package com.antik;
+package com.antik.manifest;
 
 import com.reandroid.apk.ApkModule;
 import com.reandroid.arsc.chunk.xml.AndroidManifestBlock;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class ManifestPatcher {
+public class manifestP {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void patch(ApkModule m) throws Exception {

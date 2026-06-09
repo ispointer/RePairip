@@ -1,5 +1,9 @@
 package com.antik;
 
+import com.antik.crc32.crc32;
+import com.antik.manifest.manifestP;
+import com.antik.ui.*;
+import com.antik.utils.*;
 import com.reandroid.apk.ApkBundle;
 import com.reandroid.apk.ApkModule;
 import java.io.*;
@@ -29,7 +33,7 @@ public class Main {
 
         if (a.length < 2 || !"-i".equals(a[0]))
         {
-            AntikUtils.help();
+            help.help();
             return;
         }
 
@@ -41,7 +45,7 @@ public class Main {
             return;
         }
 
-        AntikUtils.banner();
+        banner.banner();
 
         File T_Dir = null;
 
@@ -64,7 +68,7 @@ public class Main {
             System.out.println("[INFO] Patching AndroidManifest.xml");
 
             try {
-                ManifestPatcher.patch(Sp_T);
+                manifestP.patch(Sp_T);
             } catch (Exception e) {
                 System.err.println("[ERROR] Manifest patching failed: " + e.getMessage());
                 e.printStackTrace();
@@ -83,7 +87,7 @@ public class Main {
             }
 
 
-            File o_f = new File(AntikUtils.get_out(I_pa, o));
+            File o_f = new File(output.get_out(I_pa, o));
 
             int T_tl = Sp_T.getZipEntryMap().size();
 
@@ -97,11 +101,11 @@ public class Main {
                 @Override
                 public void onCompressFile(String p, int m, long w) {
                     c[0]++;
-                    AntikUtils.progress(c[0], T_l);
+                    loading.progress(c[0], T_l);
                 }
             });
 
-            AntikUtils.progress(T_l, T_l);
+            loading.progress(T_l, T_l);
 
             System.out.println();
             System.out.println("[MERGE] APK merged successfully..");
@@ -119,7 +123,7 @@ public class Main {
             } else {
                 p_n = p_n + "_pairip.apk";
             }
-            File Pai_Dir = new File(AntikUtils.get_out(I_pa, p_n));
+            File Pai_Dir = new File(output.get_out(I_pa, p_n));
 
             System.out.println("[INFO] Patching classes.dex");
             try {
@@ -131,7 +135,7 @@ public class Main {
 
             System.out.println("[BUILD] Building APK...");
             Sp_T.writeApk(Pai_Dir);
-            CrcPatcher.patch(o_f, Pai_Dir);
+            crc32.patch(o_f, Pai_Dir);
 
             System.out.println("[BUILD] APK built successfully at " + Pai_Dir.getAbsolutePath());
             System.out.println("[BUILD] Process completed");
@@ -146,7 +150,7 @@ public class Main {
             System.err.println("[ERROR] Merge failed: " + e.getMessage());
         } finally {
             if (T_Dir != null) {
-                AntikUtils.del_dir(T_Dir);
+                deleteDir.del_dir(T_Dir);
             }
         }
     }

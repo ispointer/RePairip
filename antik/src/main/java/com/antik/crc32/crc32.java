@@ -1,4 +1,4 @@
-package com.antik;
+package com.antik.crc32;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CrcPatcher {
+public class crc32 {
     public static void patch(File s_a, File t_a) throws IOException {
         
         Map<String, long[]> s_es = new LinkedHashMap<String, long[]>();
