@@ -129,7 +129,7 @@ public class MethodMaker {
 
     public static ImmutableMethod createClinit() {
         MethodImplementationBuilder builder = new MethodImplementationBuilder(1);
-        builder.addInstruction(new BuilderInstruction21c(Opcode.CONST_STRING, 0, new ImmutableStringReference("Pairip Patcher v1.3.10")));
+        builder.addInstruction(new BuilderInstruction21c(Opcode.CONST_STRING, 0, new ImmutableStringReference("RePatcher v1.4.14")));
         builder.addInstruction(new BuilderInstruction35c(Opcode.INVOKE_STATIC, 0, 0, 0, 0, 0, 0, new ImmutableMethodReference(PairipClass.STARTUP_LAUNCHER.type, "launch", null, "V")));
         builder.addInstruction(new BuilderInstruction10x(Opcode.RETURN_VOID));
         return new ImmutableMethod(PairipClass.APPLICATION.type, "<clinit>", null, "V", AccessFlags.STATIC.getValue() | AccessFlags.CONSTRUCTOR.getValue(), null, null, builder.getMethodImplementation());
