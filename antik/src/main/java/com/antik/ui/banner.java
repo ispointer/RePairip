@@ -12,7 +12,7 @@ public class banner {
         System.out.println("--------------------------------------");
         System.out.println("Dev     : Antik (Fox)");
         System.out.println("Channel : https://t.me/RevDex");
-        System.out.println("GitHub : https://github.com/ispointer/RePairip");
+        System.out.println("GitHub  : https://github.com/ispointer/RePairip");
         System.out.println("--------------------------------------");
     }
 }
