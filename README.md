@@ -26,7 +26,7 @@ RePairip is a command-line tool that works with PairIP-protected Android package
   <tr>
     <td align="center" width="300">
       <b>TreeView</b><br>
-      <video src="https://github.com/user-attachments/assets/140ecd9d-91b6-40ac-a707-708bbfa5a3e8" width="100%" height="600" style="width: 100%; height: 600px;" controls></video>
+      <video src="https://github.com/ispointer/RePairip/blob/main/preview/t.mp4" width="100%" height="600" style="width: 100%; height: 600px;" controls></video>
     </td>
   </tr>
 </table>
