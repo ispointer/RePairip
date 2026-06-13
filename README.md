@@ -19,15 +19,8 @@
 
 RePairip is a command-line tool that works with PairIP-protected Android packages. It can merge split `.apks` packages, patch PairIP-related dex code, clean split metadata from the manifest, rebuild the APK, and optionally apply a static translation JSON to restore dumped PairIP values
 
-## Screenshots
 
-| App UI | Dump Style |
-| --- | --- |
-| ![App UI](preview/a1.jpg) | ![Dump Style](preview/a2.jpg) |
-
-
-### tutorial
-## Project Previews
+## Tutorial
 
 <table align="center">
   <tr>
@@ -37,6 +30,12 @@ RePairip is a command-line tool that works with PairIP-protected Android package
     </td>
   </tr>
 </table>
+
+
+| App UI | Dump Style |
+| --- | --- |
+| ![App UI](preview/a1.jpg) | ![Dump Style](preview/a2.jpg) |
+
 
 ## License
 
