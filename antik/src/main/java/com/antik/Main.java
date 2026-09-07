@@ -18,6 +18,13 @@ import java.nio.file.Files;
 public class Main {
     public static void main(String[] args) {
 
+        for (String arg : args) {
+            if ("-p".equals(arg) || "--package".equals(arg)) {
+                com.antik.librarySurgery.LibSurgery.main(args);
+                return;
+            }
+        }
+
         if (args.length < 2) {
             help.help();
             return;
