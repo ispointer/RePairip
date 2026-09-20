@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <b>Current version:</b> 1.4.14 &nbsp;|&nbsp;
+  <b>Current version:</b> 1.6.30 &nbsp;|&nbsp;
   <b>Language:</b> Java 17 &nbsp;|&nbsp;
   <b>Build:</b> Gradle + Shadow Jar
 </p>
