@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 public class DexPatcher {
-    public static void patch(ApkModule m) throws Exception {
+    public static java.util.List<String> patch(ApkModule m) throws Exception {
         List<String> dx_ns = new ArrayList<String>();
         for (InputSource s : m.getInputSources()) {
             if (s.getName().endsWith(".dex")) {
@@ -184,5 +184,6 @@ public class DexPatcher {
                 System.out.println("[BUILD] Patched " + dn);
             }
         }
+        return j_ts;
     }
 }
