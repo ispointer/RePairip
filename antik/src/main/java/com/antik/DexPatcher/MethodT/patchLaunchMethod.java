@@ -31,12 +31,6 @@ public class patchLaunchMethod {
             Instruction inst = o_ins.get(i);
             int u = inst.getCodeUnits();
 
-            if (inst.getOpcode() == Opcode.GOTO || inst.getOpcode() == Opcode.GOTO_16 || inst.getOpcode() == Opcode.GOTO_32) {
-                n_ins.add(new ImmutableInstruction10x(Opcode.RETURN_VOID));
-                c_off += u;
-                continue;
-            }
-
             n_ins.add(inst);
             if (inst instanceof ReferenceInstruction) {
                 ReferenceInstruction r_i = (ReferenceInstruction) inst;

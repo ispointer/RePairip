@@ -17,7 +17,7 @@ public class ElfConstants {
     public static final long DT_INIT_ARRAYSZ = 27L;
 
     public static final byte[] OLD_EXECUTE_PROGRAM = "ExecuteProgram\0".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
-    public static final byte[] NEW_MEMSET = "memset\0\0\0\0\0\0\0\0\0".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    public static final byte[] NEW_MEMSET = "memset\0".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
 
     public static final byte[] ARM64_STUB_BYTES = new byte[]{
             (byte) 0xc0, 0x00, (byte) 0x80, 0x52, // mov w0, #0

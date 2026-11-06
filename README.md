@@ -38,3 +38,23 @@ https://www.apache.org/licenses/
 ```
 
 Copyright (C) 2026 HighCapable
+
+
+## Capture without CorePatch
+
+The classic root flow installs the logging APK with signature verification
+disabled. On Android 15 the runtime logging patch also needs the AOT/dex swap
+dance, and any modified APK kills the PairIP VM before it populates classes.
+
+The Frida path skips all of it: keep the Play-signed APK installed, launch it,
+and dump the populated junk-class fields to `pairip.json`. Then translate the
+clean merged APK and sign it normally.
+
+```bash
+java -jar RePairip.jar -i app.apks                       # merged APK + junk_classes.txt
+# launch the Play-installed app, then:
+python3 frida/capture_pairip.py -p <package> -c junk_classes.txt -o pairip.json
+java -jar RePairip.jar -i app.apks -t pairip.json        # translated APK
+```
+
+No CorePatch, no `su` install, no base.apk replacement. See `frida/README.md`.

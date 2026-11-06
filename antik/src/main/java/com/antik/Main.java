@@ -114,8 +114,9 @@ public class Main {
                 }
             } else if (!inputPath.endsWith(".apk")) {
                 System.out.println("[INFO] Patching classes.dex for logging ");
+                java.util.List<String> junkClasses = new java.util.ArrayList<String>();
                 try {
-                    DexPatcher.patch(module);
+                    junkClasses = DexPatcher.patch(module);
                 } catch (Exception e) {
                     System.err.println("[ERROR] Patching failed : " + e.getMessage());
                 }
@@ -129,6 +130,16 @@ public class Main {
                 output.write(module, paiFile);
                 crc32.patch(mergedApkFile, paiFile);
                 System.out.println("[BUILD] Logging APK built at : " + paiFile.getAbsolutePath());
+
+                File junkFile = new File(output.get_out(inputApk, "junk_classes.txt"));
+                try {
+                    java.nio.file.Files.write(junkFile.toPath(),
+                            String.join("\n", junkClasses).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    System.out.println("[BUILD] Junk class list written : " + junkFile.getAbsolutePath());
+                    System.out.println("[INFO] Use frida/capture_pairip.py to capture pairip.json without CorePatch");
+                } catch (Exception e) {
+                    System.err.println("[ERROR] Writing junk class list failed : " + e.getMessage());
+                }
 
                 if (R_mod) {
                     String pkg = module.getPackageName();
