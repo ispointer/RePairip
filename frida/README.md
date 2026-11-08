@@ -13,7 +13,10 @@ No CorePatch, no unsigned install, no base.apk swap, no ART dex-cache tricks.
 
 ## Requirements
 
-- A rooted device (Magisk or equivalent) running **frida-server 16.x**.
+- A rooted device (Magisk or equivalent) running **frida-server 16.x**. Root is
+  still required: a shell-uid frida-server cannot ptrace app processes
+  (`PermissionDeniedError: unable to access process with pid`). The Frida path
+  avoids CorePatch and reinstall, not root.
 - A matching **frida Python 16.x** client. Frida 17 removed the built-in Java
   bridge; the capture script fails with `ReferenceError: 'Java' is not defined`
   against a 17.x server. Use 16.7.19 on both sides (verified working), or
@@ -174,6 +177,9 @@ adb shell pm install -r /data/local/tmp/app-signed.apk
   targeting the wrong device. Launch it, or pass `-d <serial>`.
 - `cannot reach frida-server` — start frida-server 16.x on the device and make
   sure its version matches the Python client.
+- `cannot attach to pid ...: frida-server is not privileged` — the device is not
+  rooted (or frida-server runs as shell). Use a rooted device; Frida cannot
+  attach to another app's process without root.
 - `junk_classes.txt` missing — the 1.7.10 release does not write it. Generate it
   with `frida/JunkClasses.java` as shown in step 2.
 - `no dictionary received` — the app is not running, PairIP has not initialized

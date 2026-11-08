@@ -125,6 +125,9 @@ def main():
         print("attach pid", pid)
         try:
             session = dev.attach(pid)
+        except frida.PermissionDeniedError:
+            sys.exit("cannot attach to pid %d: frida-server is not privileged; "
+                     "root is required to instrument app processes" % pid)
         except frida.ServerNotRunningError:
             sys.exit("cannot reach frida-server; start frida-server 16.x and retry")
         if args.wait > 0:

@@ -59,7 +59,9 @@ java -jar RePairip.jar -i app.apks -t pairip.json        # translated APK
 ```
 
 Requires frida-server and a matching Frida Python client on 16.x (Frida 17
-removed the Java bridge). Builds from `main` write `junk_classes.txt`
-themselves; the `JunkClasses.java` step is only needed for the 1.7.10 release
-JAR. No CorePatch, no `su` install, no base.apk replacement. See
-`frida/README.md` for the full procedure and troubleshooting.
+removed the Java bridge). Root is still required for frida-server to attach to
+the app; the Frida path only removes CorePatch and the patched-APK install.
+Builds from `main` write `junk_classes.txt` themselves; the `JunkClasses.java`
+step is only needed for the 1.7.10 release JAR. No CorePatch, no `su` install,
+no base.apk replacement. See `frida/README.md` for the full procedure and
+troubleshooting.
