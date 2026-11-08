@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <b>Current version:</b> 1.6.30 &nbsp;|&nbsp;
+  <b>Current version:</b> 1.7.10 &nbsp;|&nbsp;
   <b>Language:</b> Java 17 &nbsp;|&nbsp;
   <b>Build:</b> Gradle + Shadow Jar
 </p>
@@ -51,10 +51,15 @@ and dump the populated junk-class fields to `pairip.json`. Then translate the
 clean merged APK and sign it normally.
 
 ```bash
-java -jar RePairip.jar -i app.apks                       # merged APK + junk_classes.txt
+java -jar RePairip.jar -i app.apks                       # merged APK
+java -cp RePairip.jar frida/JunkClasses.java app_merged.apk > junk_classes.txt  # 1.7.10 release
 # launch the Play-installed app, then:
 python3 frida/capture_pairip.py -p <package> -c junk_classes.txt -o pairip.json
 java -jar RePairip.jar -i app.apks -t pairip.json        # translated APK
 ```
 
-No CorePatch, no `su` install, no base.apk replacement. See `frida/README.md`.
+Requires frida-server and a matching Frida Python client on 16.x (Frida 17
+removed the Java bridge). Builds from `main` write `junk_classes.txt`
+themselves; the `JunkClasses.java` step is only needed for the 1.7.10 release
+JAR. No CorePatch, no `su` install, no base.apk replacement. See
+`frida/README.md` for the full procedure and troubleshooting.
