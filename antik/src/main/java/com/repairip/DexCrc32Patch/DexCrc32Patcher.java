@@ -23,6 +23,8 @@
 
 package com.repairip.DexCrc32Patch;
 
+import com.repairip.Utils.SpannableBanner;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -190,7 +192,7 @@ public final class DexCrc32Patcher {
 
                     mArchive.writeInt(mCrc);
 
-                    System.out.println("[CRC32] Patched: " + mName);
+                    System.out.println(SpannableBanner.CYAN + "[CRC32] " + SpannableBanner.RESET + "Patched: " + mName);
 
                 }
 

@@ -83,18 +83,25 @@ public class Loading {
 
                 int mPercent = (int) mBuffer;
 
-                StringBuilder mBar = new StringBuilder("\r[");
+                StringBuilder mBar = new StringBuilder("\r" + SpannableBanner.CYAN + "[" + SpannableBanner.RESET);
 
-                // TODO: i will improve the buffer fill progress later for now i will focus on fixing bugs the current code is bug free (-_-)
+                int filledCount = mPercent * 36 / 100;
+
+                mBar.append(SpannableBanner.GREEN);
                 int i = 0;
-                for ( ; i < 36; ) {
+                for (; i < filledCount; i++) {
+                    mBar.append("#");
+                }
+                mBar.append(SpannableBanner.RESET);
 
-                    mBar.append(i < mPercent * 36 / 100 ? "#" : "-");
-
-                    i = i + 1;
+                for (; i < 36; i++) {
+                    mBar.append("-");
                 }
 
-                System.out.print(mBar.append("] ").append(mPercent).append("%   "));
+                mBar.append(SpannableBanner.CYAN + "] " + SpannableBanner.RESET)
+                    .append(SpannableBanner.YELLOW).append(mPercent).append("%" + SpannableBanner.RESET).append("   ");
+
+                System.out.print(mBar.toString());
                 System.out.flush();
 
                 Thread.sleep(50);

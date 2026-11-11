@@ -23,6 +23,8 @@
 
 package com.repairip.DexPatch.Logging;
 
+import com.repairip.Utils.SpannableBanner;
+
 import org.jf.dexlib2.iface.ClassDef;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
@@ -56,7 +58,7 @@ public class LauncherPatcher {
      * @return updated class definition with modified launch method and generated pairip method
      */
     public static ClassDef patchStartupLauncher(ClassDef classDef, List<String> junkClasses) {
-        System.out.println("[INFO] Patching StartupLauncher");
+        System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Patching StartupLauncher");
         List<Method> directMethods = new ArrayList<>();
         for (Method method : classDef.getDirectMethods()) {
             if ("launch".equals(method.getName())) {

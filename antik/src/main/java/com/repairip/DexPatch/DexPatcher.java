@@ -29,6 +29,8 @@ import com.repairip.Main;
 import com.reandroid.apk.ApkModule;
 import com.reandroid.archive.ByteInputSource;
 import com.reandroid.archive.InputSource;
+import com.repairip.Utils.SpannableBanner;
+
 import org.jf.dexlib2.DexFileFactory;
 import org.jf.dexlib2.Opcodes;
 import org.jf.dexlib2.iface.ClassDef;
@@ -104,7 +106,7 @@ public class DexPatcher {
                     }
                     a_ts.add(c.getType());
                 }
-                System.out.println("[INFO] Added classes from log.dex " + pkg);
+                System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Added classes from log.dex " + pkg);
             }
         }
 
@@ -153,7 +155,7 @@ public class DexPatcher {
                 }
             }
         }
-        System.out.println("[INFO] Found " + j_ts.size() + " junk classes");
+        System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Found " + j_ts.size() + " junk classes");
         for (String dn : dx_ns) {
             InputSource s = m.getInputSource(dn);
             if (s == null) continue;
@@ -214,7 +216,7 @@ public class DexPatcher {
                 dp.writeTo(ds);
                 byte[] r_bs = Arrays.copyOf(ds.getData(), ds.getSize());
                 m.add(new ByteInputSource(r_bs, dn));
-                System.out.println("[BUILD] Patched " + dn);
+                System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Patched " + dn);
             }
         }
         return j_ts;

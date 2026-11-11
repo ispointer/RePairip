@@ -27,6 +27,8 @@ import com.repairip.Main;
 import com.reandroid.apk.ApkModule;
 import com.reandroid.archive.ByteInputSource;
 import com.reandroid.archive.InputSource;
+import com.repairip.Utils.SpannableBanner;
+
 import org.jf.dexlib2.DexFileFactory;
 import org.jf.dexlib2.Opcodes;
 import org.jf.dexlib2.iface.ClassDef;
@@ -62,7 +64,7 @@ public class TranslationPatcher {
     private static final byte[] PAIRIP_ASSET_HEADER = new byte[]{0x00, 0x49, 0x41, 0x50, 0x02};
 
     public static void patch(ApkModule m, File jsonFile) throws Exception {
-        System.out.println("[INFO] Loading translation file: " + jsonFile.getName());
+        System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Loading translation file: " + jsonFile.getName());
         TranslationData data = new TranslationData(jsonFile);
         TranslationRewriter rewriter = new TranslationRewriter(data);
 
@@ -113,11 +115,11 @@ public class TranslationPatcher {
                 String type = cd.getType();
                 if (type.startsWith("Lcom/pairip/")) {
                     if (PairipClass.contains(type)) {
-                        System.out.println("[INFO] Patching " + type + " in " + dn);
+                        System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Patching " + type + " in " + dn);
                         cds.add(rewriter.rewrite(cd));
                         mod = true;
                     } else if (!type.equals("Lcom/pairip/PairipLog;") && !type.equals("Lcom/pairip/RestoreMethod;")) {
-                        System.out.println("[INFO] Removing class: " + type);
+                        System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Removing class: " + type);
                         mod = true;
                     } else {
                         cds.add(cd);
@@ -136,7 +138,7 @@ public class TranslationPatcher {
                 dp.writeTo(ds);
                 byte[] r_bs = Arrays.copyOf(ds.getData(), ds.getSize());
                 m.add(new ByteInputSource(r_bs, dn));
-                System.out.println("[BUILD] Patched translation in " + dn);
+                System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Patched translation in " + dn);
             }
         }
 
@@ -144,7 +146,7 @@ public class TranslationPatcher {
         for (PendingDex pendingDex : extraDexes) {
             if (!pendingDex.canAddAgainst(existingClassTypes)) {
                 if (!pendingDex.isFullyPresentIn(existingClassTypes)) {
-                    System.err.println("[WARN] Skipping " + pendingDex.sourceName + " due to partial class overlap");
+                    System.err.println(SpannableBanner.YELLOW + "[WARN] " + SpannableBanner.RESET + "Skipping " + pendingDex.sourceName + " due to partial class overlap");
                 }
                 continue;
             }
@@ -154,7 +156,7 @@ public class TranslationPatcher {
             m.add(new ByteInputSource(pendingDex.dexBytes, dexEntryName));
             existingDexNames.add(dexEntryName);
             existingClassTypes.addAll(pendingDex.classTypes);
-            System.out.println("[INFO] Added " + dexEntryName + " from " + pendingDex.sourceName);
+            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Added " + dexEntryName + " from " + pendingDex.sourceName);
         }
 
         List<String> libFiles = new ArrayList<>();
@@ -166,9 +168,9 @@ public class TranslationPatcher {
         for (String libFile : libFiles) {
             try {
                 m.getZipEntryMap().remove(libFile);
-                System.out.println("[INFO] Removing lib: " + libFile);
+                System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Removing lib: " + libFile);
             } catch (Exception e) {
-                System.err.println("[WARN] Could not remove lib: " + libFile);
+                System.err.println(SpannableBanner.YELLOW + "[WARN] " + SpannableBanner.RESET + "Could not remove lib: " + libFile);
             }
         }
     }
@@ -240,7 +242,7 @@ public class TranslationPatcher {
                 throw new FileNotFoundException("Missing resource: /restoreMethod.dex");
             }
             PendingDex pendingDex = pendingDexFromBytes("restoreMethod.dex", readAllBytes(input), "restore_method");
-            System.out.println("[INFO] Loaded classes from restoreMethod.dex");
+            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Loaded classes from restoreMethod.dex");
             return pendingDex.isFullyPresentIn(existingClassTypes) ? null : pendingDex;
         }
     }

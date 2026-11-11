@@ -57,45 +57,88 @@ public class Main {
 
     public static void main(String[] mArgs) {
 
-        if (mArgs.length < 2) {
+        boolean helpRequested = false;
+        boolean versionRequested = false;
+        String mInputPath = null;
+        String mOutputPath = null;
+        String mTranslatePath = null;
+        boolean mRMod = false;
+
+        List<String> errors = new ArrayList<>();
+
+        for (int mIndex = 0; mIndex < mArgs.length; mIndex++) {
+            String arg = mArgs[mIndex];
+
+            if ("-h".equals(arg) || "--help".equals(arg)) {
+                helpRequested = true;
+            } else if ("-v".equals(arg) || "--version".equals(arg)) {
+                versionRequested = true;
+            } else if ("-i".equals(arg) || "--input".equals(arg)) {
+                if (mIndex + 1 < mArgs.length && !mArgs[mIndex + 1].startsWith("-")) {
+                    mInputPath = mArgs[++mIndex];
+                } else {
+                    errors.add("option " + SpannableBanner.CYAN + arg + SpannableBanner.RESET + " requires a value");
+                }
+            } else if (arg.startsWith("-i=") || arg.startsWith("--input=")) {
+                mInputPath = arg.substring(arg.indexOf('=') + 1);
+            } else if ("-o".equals(arg) || "--output".equals(arg)) {
+                if (mIndex + 1 < mArgs.length && !mArgs[mIndex + 1].startsWith("-")) {
+                    mOutputPath = mArgs[++mIndex];
+                } else {
+                    errors.add("option " + SpannableBanner.CYAN + arg + SpannableBanner.RESET + " requires a value");
+                }
+            } else if (arg.startsWith("-o=") || arg.startsWith("--output=")) {
+                mOutputPath = arg.substring(arg.indexOf('=') + 1);
+            } else if ("-t".equals(arg) || "--translate".equals(arg)) {
+                if (mIndex + 1 < mArgs.length && !mArgs[mIndex + 1].startsWith("-")) {
+                    mTranslatePath = mArgs[++mIndex];
+                } else {
+                    errors.add("option " + SpannableBanner.CYAN + arg + SpannableBanner.RESET + " requires a value");
+                }
+            } else if (arg.startsWith("-t=") || arg.startsWith("--translate=")) {
+                mTranslatePath = arg.substring(arg.indexOf('=') + 1);
+            } else if ("-r".equals(arg) || "--lazymod".equals(arg)) {
+                mRMod = true;
+            } else if ("-help".equals(arg)) {
+                errors.add("no such option " + SpannableBanner.CYAN + "-e" + SpannableBanner.RESET + ". Did you mean " + SpannableBanner.CYAN + "--help" + SpannableBanner.RESET + "?");
+            } else if (arg.startsWith("-")) {
+                errors.add("no such option " + SpannableBanner.CYAN + arg + SpannableBanner.RESET + ". Did you mean " + SpannableBanner.CYAN + "--help" + SpannableBanner.RESET + "?");
+            }
+        }
+
+        if (helpRequested) {
             SpannableBanner.help();
             return;
         }
 
-        String mInputPath = null;
-        String mTranslatePath = null;
-        boolean mRMod = false;
-
-        for (int mIndex = 0; mIndex < mArgs.length; mIndex++)
-        {
-
-            if ("-i".equals(mArgs[mIndex]) && mIndex + 1 < mArgs.length)
-            {
-
-                mInputPath = mArgs[++mIndex];
-
-            } else if ("-t".equals(mArgs[mIndex]) && mIndex + 1 < mArgs.length)
-            {
-
-                mTranslatePath = mArgs[++mIndex];
-
-            } else if ("-r".equals(mArgs[mIndex]))
-            {
-
-                mRMod = true;
-
-            }
+        if (versionRequested) {
+            System.out.println("RePairip Version : 1.8.30");
+            return;
         }
 
-        if (mInputPath == null) {
-            SpannableBanner.help();
+        if (mArgs.length == 0 || (mInputPath == null && errors.isEmpty())) {
+            SpannableBanner.usage();
+            System.out.println();
+            SpannableBanner.printError("missing option " + SpannableBanner.CYAN + "--input" + SpannableBanner.RESET);
+            return;
+        }
+
+        if (!errors.isEmpty()) {
+            SpannableBanner.usage();
+            System.out.println();
+            for (String err : errors) {
+                SpannableBanner.printError(err);
+            }
+            if (mInputPath == null) {
+                SpannableBanner.printError("missing option " + SpannableBanner.CYAN + "--input" + SpannableBanner.RESET);
+            }
             return;
         }
 
         File mInput = new File(mInputPath);
 
         if (!mInput.exists()) {
-            System.err.println("Input file not found : " + mInputPath);
+            SpannableBanner.printError("Input file not found : " + mInputPath);
             return;
         }
 
@@ -107,7 +150,7 @@ public class Main {
 
             ApkModule mModule;
             File mMerged;
-            File mParent = mInput.getAbsoluteFile().getParentFile();
+            File mParent = (mOutputPath != null) ? new File(mOutputPath) : mInput.getAbsoluteFile().getParentFile();
 
             WriteProgress mProgress = new WriteProgress() {
                 @Override
@@ -118,7 +161,7 @@ public class Main {
 
             if (mInputPath.endsWith(".apk")) {
 
-                System.out.println("[INFO] Loading APK ");
+                System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Loading APK ");
 
                 mModule = ApkModule.loadApkFile(mInput);
                 mMerged = mInput;
@@ -127,17 +170,17 @@ public class Main {
 
                 mTemp = Files.createTempDirectory("antik_merge").toFile();
 
-                System.out.println("[MERGE] Extracting APKS ");
+                System.out.println(SpannableBanner.YELLOW + "[MERGE] " + SpannableBanner.RESET + "Extracting APKS ");
 
                 ApkExtractor.mExtract(mInput, mTemp);
 
-                System.out.println("[MERGE] Merging APK ");
+                System.out.println(SpannableBanner.YELLOW + "[MERGE] " + SpannableBanner.RESET + "Merging APK ");
 
                 ApkBundle mBundle = new ApkBundle();
                 mBundle.loadApkDirectory(mTemp);
                 mModule = mBundle.mergeModules();
 
-                System.out.println("[INFO] Patching AndroidManifest.xml");
+                System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Patching AndroidManifest.xml");
 
                 ManifestPatcher.patch(mModule);
 
@@ -149,7 +192,7 @@ public class Main {
 
                 mMerged = new File(mParent, mName);
 
-                System.out.println("[BUILD] Writing merged APK ");
+                System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Writing merged APK ");
 
                 try {
                     Loading.progress(mModule, mMerged);
@@ -158,7 +201,7 @@ public class Main {
                     mError.printStackTrace();
                 }
 
-                System.out.println("[MERGE] APK merged successfully: "
+                System.out.println(SpannableBanner.YELLOW + "[MERGE] " + SpannableBanner.RESET + "APK merged successfully: "
                         + mMerged.getAbsolutePath());
             }
 
@@ -168,7 +211,7 @@ public class Main {
 
                 if (mJson.exists()) {
 
-                    System.out.println("[INFO] Starting Translation Patch ");
+                    System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Starting Translation Patch ");
 
                     TranslationPatcher.patch(mModule, mJson);
 
@@ -186,29 +229,29 @@ public class Main {
 
                     File mTranslated = new File(mParent, mName);
 
-                    System.out.println("[BUILD] Building Translated APK ");
+                    System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Building Translated APK ");
 
                     mModule.writeApk(mTranslated, mProgress);
 
-                    System.out.println("[BUILD] Translated APK built at : "
+                    System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Translated APK built at : "
                             + mTranslated.getAbsolutePath());
 
                 } else {
 
-                    System.err.println("[ERROR] Translation file not found : "
+                    SpannableBanner.printError("Translation file not found : "
                             + mTranslatePath);
                 }
 
             } else if (!mInputPath.endsWith(".apk")) {
 
-                System.out.println("[INFO] Patching classes.dex for logging ");
+                System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Patching classes.dex for logging ");
 
                 List<String> mJunk = new ArrayList<String>();
 
                 try {
                     mJunk = DexPatcher.patch(mModule);
                 } catch (Exception mError) {
-                    System.err.println("[ERROR] Patching failed : "
+                    SpannableBanner.printError("Patching failed : "
                             + mError.getMessage());
                 }
 
@@ -224,13 +267,13 @@ public class Main {
 
                 File mPairip = new File(mParent, mName);
 
-                System.out.println("[BUILD] Building Logging APK ");
+                System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Building Logging APK ");
 
                 mModule.writeApk(mPairip, mProgress);
 
                 DexCrc32Patcher.patch(mMerged, mPairip);
 
-                System.out.println("[BUILD] Logging APK built at : "
+                System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Logging APK built at : "
                         + mPairip.getAbsolutePath());
 
                 File mJunkFile = new File(mParent, "junk_classes.txt");
@@ -249,24 +292,24 @@ public class Main {
                     Files.write(mJunkFile.toPath(),
                             mText.toString().getBytes(StandardCharsets.UTF_8));
 
-                    System.out.println("[BUILD] Junk class list written : "
+                    System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Junk class list written : "
                             + mJunkFile.getAbsolutePath());
 
-                    System.out.println(
-                            "[INFO] Use frida/capture_pairip.py to capture pairip.json without CorePatch");
+                    System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET +
+                            "Use frida/capture_pairip.py to capture pairip.json without CorePatch");
 
                 } catch (Exception mError) {
 
-                    System.err.println("[ERROR] Writing junk class list failed : "
+                    SpannableBanner.printError("Writing junk class list failed : "
                             + mError.getMessage());
                 }
             }
 
-            System.out.println("[BUILD] Process completed");
+            System.out.println(SpannableBanner.GREEN + "[BUILD] " + SpannableBanner.RESET + "Process completed");
 
         } catch (Exception mError) {
 
-            System.err.println("[ERROR] Process failed : "
+            SpannableBanner.printError("Process failed : "
                     + mError.getMessage());
 
             mError.printStackTrace();

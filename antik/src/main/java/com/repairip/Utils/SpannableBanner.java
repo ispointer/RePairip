@@ -36,6 +36,15 @@ package com.repairip.Utils;
  */
 
 public class SpannableBanner {
+    private static final char ESC = (char) 27;
+
+    public static final String RESET   = ESC + "[0m";
+    public static final String BOLD    = ESC + "[1m";
+    public static final String RED     = ESC + "[31m";
+    public static final String GREEN   = ESC + "[32m";
+    public static final String YELLOW  = ESC + "[33m";
+    public static final String CYAN    = ESC + "[36m";
+
     public static void banner() {
         System.out.println("░░░░░█▀▄░█▀▀░█░█░█▀▄░█▀▀░█░█░░░░░");
         System.out.println("░░░░░█▀▄░█▀▀░▀▄▀░█░█░█▀▀░▄▀▄░░░░░");
@@ -43,18 +52,30 @@ public class SpannableBanner {
         System.out.println("░█▀▄░█▀▀░█▀█░█▀█░▀█▀░█▀▄░▀█▀░█▀█░");
         System.out.println("░█▀▄░█▀▀░█▀▀░█▀█░░█░░█▀▄░░█░░█▀▀░");
         System.out.println("░▀░▀░▀▀▀░▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░░░");
-        System.out.println("Version : 1.8.30");
-        System.out.println("--------------------------------------");
-        System.out.println("Dev     : Antik");
-        System.out.println("Channel : https://t.me/RevDex");
-        System.out.println("GitHub  : https://github.com/ispointer/RePairip");
-        System.out.println("--------------------------------------");
+        System.out.println(YELLOW + "Version : 1.8.30" + RESET);
+        System.out.println(CYAN + "--------------------------------------" + RESET);
+        System.out.println("Dev     : " + GREEN + "Antik" + RESET);
+        System.out.println("Channel : " + YELLOW + "https://t.me/RevDex" + RESET);
+        System.out.println("GitHub  : " + YELLOW + "https://github.com/ispointer/RePairip" + RESET);
+        System.out.println(CYAN + "--------------------------------------" + RESET);
+    }
+
+    public static void usage() {
+        System.out.println("Usage: Pairip.jar [" + CYAN + "<options>" + RESET + "]");
     }
 
     public static void help() {
-        System.out.println("java -jar RePairip.jar -i <input.apks>");
-        System.out.println("java -jar RePairip.jar -i <input.apks> -r <lazymod>");
-        System.out.println("java -jar RePairip.jar -i <merged.apk> -t <pairip.json>");
-        System.out.println("java -jar RePairip.jar -p <package_name> -o <out_dir>");
+        usage();
+        System.out.println();
+        System.out.println(YELLOW + "Options:" + RESET);
+        System.out.println("  " + CYAN + "--version               " + RESET + "Show the version and exit");
+        System.out.println("  " + CYAN + "-i" + RESET + ", " + CYAN + "--input" + RESET + "=" + YELLOW + "<path>      " + RESET + "input apk");
+        System.out.println("  " + CYAN + "-o" + RESET + ", " + CYAN + "--output" + RESET + "=" + YELLOW + "<path>     " + RESET + "output dir");
+        System.out.println("  " + CYAN + "-t" + RESET + ", " + CYAN + "--translate" + RESET + "=" + YELLOW + "<path>  " + RESET + "translate file");
+        System.out.println("  " + CYAN + "-h" + RESET + ", " + CYAN + "--help              " + RESET + "Show this message and exit");
+    }
+
+    public static void printError(String message) {
+        System.out.println(RED + "Error: " + RESET + message);
     }
 }

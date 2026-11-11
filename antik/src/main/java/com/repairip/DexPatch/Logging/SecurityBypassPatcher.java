@@ -23,6 +23,8 @@
 
 package com.repairip.DexPatch.Logging;
 
+import com.repairip.Utils.SpannableBanner;
+
 import org.jf.dexlib2.Opcode;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.instruction.Instruction;
@@ -63,7 +65,7 @@ public class SecurityBypassPatcher {
     public static Method patchMethodIfTarget(Method method) {
         String name = method.getName();
         if ("verifySignatureMatches".equals(name)) {
-            System.out.println("[INFO] Bypassing verifySignatureMatches");
+            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Bypassing verifySignatureMatches");
             List<Instruction> instructions = Arrays.asList(
                     new ImmutableInstruction11n(Opcode.CONST_4, 0, 1),
                     new ImmutableInstruction11x(Opcode.RETURN, 0)
@@ -79,7 +81,7 @@ public class SecurityBypassPatcher {
                     new ImmutableMethodImplementation(1, instructions, null, null)
             );
         } else if ("verifyIntegrity".equals(name)) {
-            System.out.println("[INFO] Bypassing " + name);
+            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Bypassing " + name);
             String returnType = method.getReturnType();
             List<Instruction> instructions;
             if ("V".equals(returnType)) {
