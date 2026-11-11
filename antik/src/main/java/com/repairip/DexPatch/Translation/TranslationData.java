@@ -69,7 +69,10 @@ public class TranslationData {
             for (String fieldName : fieldsObj.keySet()) {
                 fields.put(fieldName, fieldsObj.getString(fieldName));
             }
-            entries.put(rawClassName, new Entry(type, fields));
+            /**
+             * normalize class descriptor key so containsKey(type) matches DEX class descriptors
+             */
+            entries.put(normalizeClassName(rawClassName), new Entry(type, fields));
         }
     }
 

@@ -118,11 +118,16 @@ public class TranslationPatcher {
                         System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Patching " + type + " in " + dn);
                         cds.add(rewriter.rewrite(cd));
                         mod = true;
-                    } else if (!type.equals("Lcom/pairip/PairipLog;") && !type.equals("Lcom/pairip/RestoreMethod;")) {
+
+                        /**
+                         * Keep target string & method container classes defined in pairip.json
+                         * to prevent deleting required classes
+                         */
+                    } else if (data.entries.containsKey(type) || type.equals("Lcom/pairip/PairipLog;") || type.equals("Lcom/pairip/RestoreMethod;")) {
+                        cds.add(cd);  // prevent deleting required classes
+                    } else {
                         System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Removing class: " + type);
                         mod = true;
-                    } else {
-                        cds.add(cd);
                     }
                 } else {
                     cds.add(cd);
