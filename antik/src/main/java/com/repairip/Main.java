@@ -34,6 +34,7 @@ import com.repairip.Utils.SpannableBanner;
 import com.reandroid.apk.ApkBundle;
 import com.reandroid.apk.ApkModule;
 import com.reandroid.archive.WriteProgress;
+import com.repairip.Utils.Update;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -112,7 +113,7 @@ public class Main {
         }
 
         if (versionRequested) {
-            System.out.println("RePairip Version : 1.8.30");
+            System.out.println("RePairip Version : " + Update.CURRENT_VERSION);
             return;
         }
 
@@ -335,6 +336,7 @@ public class Main {
 
                 mTemp.delete();
             }
+            Update.mUpdate();
         }
     }
 }

@@ -52,7 +52,7 @@ public class SpannableBanner {
         System.out.println("░█▀▄░█▀▀░█▀█░█▀█░▀█▀░█▀▄░▀█▀░█▀█░");
         System.out.println("░█▀▄░█▀▀░█▀▀░█▀█░░█░░█▀▄░░█░░█▀▀░");
         System.out.println("░▀░▀░▀▀▀░▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░░░");
-        System.out.println(YELLOW + "Version : 1.8.30" + RESET);
+        System.out.println(YELLOW + "Version : " + Update.CURRENT_VERSION + RESET);
         System.out.println(CYAN + "--------------------------------------" + RESET);
         System.out.println("Dev     : " + GREEN + "Antik" + RESET);
         System.out.println("Channel : " + YELLOW + "https://t.me/RevDex" + RESET);

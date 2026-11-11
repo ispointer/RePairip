@@ -23,6 +23,8 @@
 
 package com.repairip.DexPatch.Translation;
 
+import com.repairip.Utils.Update;
+
 import org.jf.dexlib2.AccessFlags;
 import org.jf.dexlib2.Opcode;
 import org.jf.dexlib2.builder.Label;
@@ -170,7 +172,7 @@ public class TranslationMethodBuilder {
 
     public static ImmutableMethod createClinit() {
         MethodImplementationBuilder builder = new MethodImplementationBuilder(1);
-        builder.addInstruction(new BuilderInstruction21c(Opcode.CONST_STRING, 0, new ImmutableStringReference("RePatcher v1.8.30")));
+        builder.addInstruction(new BuilderInstruction21c(Opcode.CONST_STRING, 0, new ImmutableStringReference("RePatcher v" + Update.CURRENT_VERSION)));
         builder.addInstruction(new BuilderInstruction35c(Opcode.INVOKE_STATIC, 0, 0, 0, 0, 0, 0, new ImmutableMethodReference(PairipClass.STARTUP_LAUNCHER.type, "launch", null, "V")));
         builder.addInstruction(new BuilderInstruction10x(Opcode.RETURN_VOID));
         return new ImmutableMethod(PairipClass.APPLICATION.type, "<clinit>", null, "V", AccessFlags.STATIC.getValue() | AccessFlags.CONSTRUCTOR.getValue(), null, null, builder.getMethodImplementation());
