@@ -1,49 +1,35 @@
-# Frida capture — no CorePatch, no root reinstall
+# Frida capture — no CorePatch, no patched install
 
-The stock root flow needs a patched APK installed with signature verification
-disabled (CorePatch / LSPosed), because the logging build is unsigned and the
-PairIP VM dies on a modified APK. A Frida capture removes that whole dance:
+PairIP's VM dies on a modified APK, so the classic flow installs an unsigned
+logging build with signature verification disabled (CorePatch/LSPosed). Frida
+avoids that: keep the Play-signed app, launch it so PairIP fills the junk-class
+fields, dump them to `pairip.json`, then translate and sign the clean APK.
 
-- install the app normally from Play (original signature, license works)
-- launch it once so the PairIP VM populates every junk class
-- attach and dump the populated static fields straight to `pairip.json`
-- translate the clean merged APK and sign it normally
-
-No CorePatch, no unsigned install, no base.apk swap, no ART dex-cache tricks.
+Root is still required — `frida-server` must run as root to attach to the app.
+This guide removes CorePatch and the patched install, not root.
 
 ## Requirements
 
-- A rooted device (Magisk or equivalent) running **frida-server 16.x**. Root is
-  still required: a shell-uid frida-server cannot ptrace app processes
-  (`PermissionDeniedError: unable to access process with pid`). The Frida path
-  avoids CorePatch and reinstall, not root.
-- A matching **frida Python 16.x** client. Frida 17 removed the built-in Java
-  bridge; the capture script fails with `ReferenceError: 'Java' is not defined`
-  against a 17.x server. Use 16.7.19 on both sides (verified working), or
-  bundle `frida-java-bridge` with `frida-compile` if you must stay on 17.
-- `adb`, `java` 17+, and Python 3.
-- The latest RePairip release JAR from
-  <https://github.com/ispointer/RePairip/releases/latest>. No build is needed;
-  the developer publishes prebuilt JARs for users.
+- Rooted device with **frida-server 16.x** and a matching **Frida Python 16.x**
+  client. Frida 17 removed the built-in Java bridge; `capture_pairip.py` exits
+  on 17.x. Verified with 16.7.19 on both sides.
+- `adb`, Java 17+, Python 3.
+- **RePairip 1.8.30+** from
+  [Releases](https://github.com/ispointer/RePairip/releases/latest). It writes
+  `junk_classes.txt` during the merge step.
 
 ## Get RePairip
 
-Download the newest `RePairip.*.jar` from the Releases page and save it as
-`RePairip.jar`:
-
 ```bash
-# example; adjust the version to the current release
 curl -L -o RePairip.jar \
   https://github.com/ispointer/RePairip/releases/download/1.8.30/RePairip.1.8.30.jar
+java -jar RePairip.jar -v
 ```
 
-The 1.8.30 release predates the `junk_classes.txt` writer, so step 2 also uses
-the bundled `frida/JunkClasses.java` helper. Builds from `main` write that file
-directly and can skip the helper. Both `JunkClasses.java` and
-`capture_pairip.py` live in this repository, so run the steps from a repo
-checkout (or copy the two files alongside the JAR).
+Adjust the version for newer releases; `RePairip.jar` is the local name used
+below.
 
-## 1. Pull the installed splits and build an `.apks`
+## 1. Pull the installed splits
 
 ```bash
 PKG=com.example.app
@@ -58,47 +44,44 @@ with zipfile.ZipFile("work/app.apks", "w", zipfile.ZIP_STORED) as z:
 EOF
 ```
 
-`zip` is not required; the Python snippet builds the archive.
+No `zip` binary is needed; the snippet builds a stored `.apks`.
 
-## 2. Merge and produce the junk class list
+## 2. Merge and get the junk class list
 
 ```bash
 java -jar RePairip.jar -i work/app.apks
-# -> work/app_merged.apk, work/app_merged_pairip.apk
 ```
 
-Builds from `main` also write `work/junk_classes.txt`. The 1.8.30 release does
-not, so generate it from the merged APK using the helper (it reuses the dexlib2
-classes bundled in the release JAR):
+Writes:
 
-```bash
-java -cp RePairip.jar frida/JunkClasses.java work/app_merged.apk > work/junk_classes.txt
-wc -l work/junk_classes.txt   # 36 for the sample app
-```
+- `work/app_merged.apk` — clean merged APK
+- `work/app_patched.apk` — logging build (not used by this flow)
+- `work/junk_classes.txt` — PairIP junk class descriptors, generated automatically
 
-## 3. Start frida-server 16.x
+The list should be non-empty for a protected app.
+
+## 3. Start frida-server
 
 ```bash
 adb shell 'kill $(pidof frida-server) 2>/dev/null'
 adb shell 'nohup /data/local/tmp/frida-server -D >/dev/null 2>&1 &'
 adb shell '/data/local/tmp/frida-server --version'
-adb shell 'ps -A | grep -i frida'
 ```
 
-Use `su -c` for the commands if the adb shell is not already root. The server
-version must match the Python client version (for example, 16.7.19). Adjust the
-path if your 16.x binary is named differently (for example `frida16`).
+Prefix with `su -c` if the adb shell is not root. The server version must match
+the Python client (16.7.19).
 
 ## 4. Launch the stock app
 
-Install the Play-signed APK normally and leave it in the foreground; PairIP
-populates the junk-class fields during startup.
+Install the Play-signed APK normally, launch it, and leave it in the foreground:
 
 ```bash
 adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1
 ```
 
-## 5. Capture pairip.json
+PairIP populates the junk-class fields during startup.
+
+## 5. Capture `pairip.json`
 
 ```bash
 python3 -m venv .venv
@@ -106,7 +89,7 @@ python3 -m venv .venv
 .venv/bin/python frida/capture_pairip.py -p "$PKG" -c work/junk_classes.txt -o work/pairip.json
 ```
 
-Expected output:
+Expected output (sample app):
 
 ```text
 attach pid 12345
@@ -114,55 +97,54 @@ dump: {'event': 'dump', 'bytes': 73194, 'classes': 36, 'errors': []}
 wrote work/pairip.json
 ```
 
-- Frida may report the process under the app label (`Location Changer`) instead
-  of the package name. The script resolves the PID with `adb shell pidof` as a
-  fallback, so `-p <package>` still works.
-- With several devices connected, pass `-d <frida-device-id>` (the USB serial).
-- `--spawn` resumes the app and waits 10 seconds before reading fields, but some
-  Samsung/Android builds reject Frida spawning with
-  `unable to perform ptrace pokedata`. Launch the app normally and attach; that
-  is the reliable path. Use `--wait N` to adjust the wait when spawning works.
-- If the capture is partial, the script still writes the JSON but exits 1 with a
-  `WARNING` naming the missing classes.
+- With several devices connected, pass `-d <serial>`.
+- Prefer attach. `--spawn` resumes the app and waits 10 seconds, but some
+  Samsung builds reject spawning with `ptrace pokedata`; `--wait N` changes the
+  delay.
+- A partial capture still writes the JSON, prints a `WARNING` naming the
+  missing classes, and exits 1.
 
 ## 6. Translate
 
 ```bash
 java -jar RePairip.jar -i work/app.apks -t work/pairip.json
-# -> work/app_merged_translated.apk
+# -> work/app_translated.apk
 ```
 
-This removes the `com.pairip.*` classes, the VM assets, and
-`lib/arm64-v8a/libpairipcore.so`, and restores the decrypted classes.
+This removes `com.pairip.*`, the VM assets, and `libpairipcore.so`, and restores
+the captured classes. Passing the `.apks` re-merges it first; `-i` also accepts
+an `.apk`.
 
 ## 7. Align and sign
 
 ```bash
-BT=${ANDROID_HOME:-$HOME/Android/Sdk}/build-tools/35.0.0  # adjust to your install
+BT=${ANDROID_HOME:-$HOME/Android/Sdk}/build-tools/35.0.0
 keytool -genkeypair -keystore key.jks -storetype pkcs12 -alias key \
   -keyalg RSA -keysize 2048 -validity 10000 \
   -storepass android -keypass android -dname "CN=RePairip"
 
-$BT/zipalign -p -f 4 work/app_merged_translated.apk app-aligned.apk
+$BT/zipalign -p -f 4 work/app_translated.apk app-aligned.apk
 $BT/apksigner sign --ks key.jks --ks-pass pass:android \
   --key-pass pass:android --out app-signed.apk app-aligned.apk
 $BT/apksigner verify --verbose app-signed.apk
 ```
 
-On Android 15+ devices with 16 KB pages, align with `zipalign -P 16` instead.
+On Android 15+ devices with 16 KB pages, use `zipalign -P 16`.
 
 ## 8. Install
 
-The stock APK is Play-signed, so a normal `adb install -r` fails with
-`INSTALL_FAILED_UPDATE_INCOMPATIBLE`. Either:
+The stock app is Play-signed, so `adb install -r app-signed.apk` fails with
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE`. Either disable signature verification
+(CorePatch/LSPosed) and install over the stock app, or uninstall the package
+(app data is lost) and install fresh:
 
-- keep CorePatch/LSPosed signature verification disabled and install over the
-  stock app (data preserved), or
-- `adb uninstall "$PKG"` (loses app data) and `adb install app-signed.apk`.
+```bash
+adb uninstall "$PKG"
+adb install app-signed.apk
+```
 
-If installation fails with `Can't find service: package` or a
-`NullPointerException` in `StorageManagerService.allocateBytes`, the device's
-`system_server` is restarting. Wait for it to settle, then retry with:
+If installation fails with `Can't find service: package`, the package service is
+restarting; wait and retry:
 
 ```bash
 adb push app-signed.apk /data/local/tmp/app-signed.apk
@@ -171,41 +153,25 @@ adb shell pm install -r /data/local/tmp/app-signed.apk
 
 ## Troubleshooting
 
-- `ReferenceError: 'Java' is not defined` — frida-server is 17.x. Switch the
-  device to a 16.x server and use a matching 16.x Python client.
-- `unable to find process '<package>'` — the app is not running, or adb is
-  targeting the wrong device. Launch it, or pass `-d <serial>`.
-- `cannot reach frida-server` — start frida-server 16.x on the device and make
-  sure its version matches the Python client.
-- `cannot attach to pid ...: frida-server is not privileged` — the device is not
-  rooted (or frida-server runs as shell). Use a rooted device; Frida cannot
-  attach to another app's process without root.
-- `junk_classes.txt` missing — the 1.8.30 release does not write it. Generate it
-  with `frida/JunkClasses.java` as shown in step 2.
-- `no dictionary received` — the app is not running, PairIP has not initialized
-  yet, or the class list belongs to a different APK. Launch the app, wait for
-  its UI, and rerun.
-- `spawn failed (... ptrace pokedata)` — the device/kernel rejects Frida
-  spawning. Launch the app normally and omit `--spawn`.
-- Empty field values — attached too early or attached to the wrong process.
-  Launch the app first, wait for the main UI, then capture.
-- `zipalign: error while loading shared libraries: libc++.so` — incomplete SDK
-  install. Use the official Android build-tools package, not a partial copy.
-- `JunkClasses.java` fails with a source-file mode error — the installed Java
-  is a runtime-only build. Compile it once with
-  `javac -cp RePairip.jar frida/JunkClasses.java`, then run
-  `java -cp RePairip.jar:. JunkClasses work/app_merged.apk > work/junk_classes.txt`.
+- `ReferenceError: 'Java' is not defined` — server is 17.x; use 16.x on both
+  sides.
+- `unable to find process '<package>'` — app not running or wrong device;
+  launch it or pass `-d <serial>`.
+- `cannot reach frida-server` — start the matching 16.x server.
+- `frida-server is not privileged` — not rooted (or the server runs as shell);
+  root is required.
+- `no dictionary received` — app not running, PairIP not initialized, or the
+  class list belongs to a different APK.
+- Empty field values — attached too early; wait for the main UI and recapture.
+- `spawn failed (... ptrace pokedata)` — launch the app normally and drop
+  `--spawn`.
+- `junk_classes.txt` missing or empty — the APK is not PairIP-protected, or the
+  JAR is older than 1.8.30 (use `frida/JunkClasses.java` to generate the list).
 
 ## Notes
 
-- `junk_classes.txt` lists the PairIP junk class descriptors. Builds from
-  `main` write it during the logging step; for the 1.8.30 release use
-  `JunkClasses.java`.
 - The capture reads the same static `String` / `reflect.Method` fields that the
-  injected `PairipLog` writes, so the resulting JSON is format-compatible with
-  the root-mode capture.
-- Works on Play-installed apps where the license passes, so PairIP's native
-  init and VM stay healthy while fields are populated.
-- The translated build injects the captured values back into the junk classes
-  (`SPUT_OBJECT` in `MethodMaker`), so re-capturing from a translated install
-  returns the same dictionary.
+  injected `PairipLog` reads, so `pairip.json` stays compatible with the root
+  flow.
+- The translated build injects the captured values back (`SPUT_OBJECT` in
+  `MethodMaker`), so recapturing from it returns the same dictionary.
