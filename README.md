@@ -77,7 +77,6 @@ clean merged APK and sign it normally.
 
 ```bash
 java -jar RePairip.jar -i app.apks                       # merged APK
-java -cp RePairip.jar frida/JunkClasses.java app_merged.apk > junk_classes.txt  # 1.8.30 release
 # launch the Play-installed app, then:
 python3 frida/capture_pairip.py -p <package> -c junk_classes.txt -o pairip.json
 java -jar RePairip.jar -i app.apks -t pairip.json        # translated APK
