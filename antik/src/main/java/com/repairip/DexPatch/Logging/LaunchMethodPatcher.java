@@ -35,6 +35,7 @@ import org.jf.dexlib2.immutable.ImmutableExceptionHandler;
 import org.jf.dexlib2.immutable.ImmutableMethod;
 import org.jf.dexlib2.immutable.ImmutableMethodImplementation;
 import org.jf.dexlib2.immutable.ImmutableTryBlock;
+import org.jf.dexlib2.immutable.instruction.ImmutableInstruction10x;
 import org.jf.dexlib2.immutable.instruction.ImmutableInstruction35c;
 import org.jf.dexlib2.immutable.reference.ImmutableMethodReference;
 
@@ -85,7 +86,21 @@ public class LaunchMethodPatcher {
             Instruction instruction = originalInstructions.get(i);
             int codeUnits = instruction.getCodeUnits();
 
+           // newInstructions.add(instruction);
+            /**
+             * if-eqz v1, :cond_9                         if-eqz v1, :cond_9
+             *
+             *  monitor-exit v0                           monitor-exit v0
+             *
+             *  goto :goto_13      --------> Bug Fix -->> return-void
+             *
+             */
+            if (instruction.getOpcode() == Opcode.GOTO) {
+                instruction = new ImmutableInstruction10x(Opcode.RETURN_VOID);
+            }
+
             newInstructions.add(instruction);
+
             if (instruction instanceof ReferenceInstruction) {
                 ReferenceInstruction referenceInstruction = (ReferenceInstruction) instruction;
                 if (referenceInstruction.getReference() instanceof MethodReference) {
