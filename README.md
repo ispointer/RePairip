@@ -1,18 +1,10 @@
-<p align="center">
-  <img src="preview/re.png" width="100" height="100" alt="RePairip logo"/>
-</p>
+# RePairip
 
-<h1 align="center">RePairip</h1>
+<img align="right" src="preview/re.png" width="250" alt="RePairip Logo">
 
-<p align="center">
-  RePairip is a Google加固 reverse engineering tool that can dump all VMRunner snapshots and fully repack Android applications, removing protection layers completely
-</p>
+> **Current version:** 1.8.30 | **Language:** Java 17
 
-<p align="center">
-  <b>Current version:</b> 1.8.30 &nbsp;|&nbsp;
-  <b>Language:</b> Java 17 &nbsp;|&nbsp;
-  <b>Build:</b> Gradle + Shadow Jar
-</p>
+RePairip is a Google加固 reverse engineering tool that can dump all VMRunner snapshots and fully repack Android applications, removing protection layers completely.
 
 
 ## Tutorial
