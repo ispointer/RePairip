@@ -160,7 +160,7 @@ public class TranslationMethodBuilder {
                 String targetClass = TranslationData.normalizeClassName(entry.getKey());
                 for (Map.Entry<String, String> field : entry.getValue().fields.entrySet()) {
                     builder.addInstruction(new BuilderInstruction21c(Opcode.CONST_STRING, 0, new ImmutableStringReference(field.getValue())));
-                    builder.addInstruction(new BuilderInstruction35c(Opcode.INVOKE_STATIC, 1, 0, 0, 0, 0, 0, new ImmutableMethodReference("Lcom/pairip/RestoreMethod;", "get", Collections.singletonList("Ljava/lang/String;"), "Ljava/lang/reflect/Method;")));
+                    builder.addInstruction(new BuilderInstruction35c(Opcode.INVOKE_STATIC, 1, 0, 0, 0, 0, 0, new ImmutableMethodReference("Lcom/aantik/vmrunnerlogger/RePairipRestore;", "get", Collections.singletonList("Ljava/lang/String;"), "Ljava/lang/reflect/Method;")));
                     builder.addInstruction(new BuilderInstruction11x(Opcode.MOVE_RESULT_OBJECT, 0));
                     builder.addInstruction(new BuilderInstruction21c(Opcode.SPUT_OBJECT, 0, new ImmutableFieldReference(targetClass, field.getKey(), "Ljava/lang/reflect/Method;")));
                 }
