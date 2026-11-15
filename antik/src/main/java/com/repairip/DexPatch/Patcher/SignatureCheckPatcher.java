@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.repairip.DexPatch.Logging;
+package com.repairip.DexPatch.Patcher;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.instruction.Instruction;
 import org.jf.dexlib2.iface.instruction.ReferenceInstruction;
@@ -43,26 +43,24 @@ import java.util.List;
  * Fox Mode 🍺
  */
 
-
-/**
- * Handles bypassing security check methods such as signature and integrity verifications.
- */
-public class SecurityBypassPatcher {
+public class SignatureCheckPatcher {
 
     /**
-     * Replaces signature and integrity verification method implementations with stub return values.
-     *
-     * @param method method to check and potentially patch
-     * @return patched method if matching target security check, or original method
+     * removes the pairip signature check
+     * @param method
+     * @return
      */
     public static Method patchMethodIfTarget(Method method) {
+
         List<Instruction> instructions = new ArrayList<Instruction>();
+        String mSignatureCheck = "Lcom/pairip/SignatureCheck;->verifyIntegrity(Landroid/content/Context;)V";
 
         for (Instruction instruction : method.getImplementation().getInstructions()) {
             if (instruction instanceof ReferenceInstruction) {
                 String ref = ((ReferenceInstruction) instruction).getReference().toString();
 
-                if (ref.equals("Lcom/pairip/SignatureCheck;->verifyIntegrity(Landroid/content/Context;)V")) {
+                //TODO: it's not final
+                if (ref.equals(mSignatureCheck)) {
                     continue;
                 }
             }

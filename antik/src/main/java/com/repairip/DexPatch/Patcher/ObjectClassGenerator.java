@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2024 Antik
+ * Copyright (c) 2026 Antik
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,13 @@
  * SOFTWARE.
  */
 
-package com.repairip.DexPatch.Logging;
+package com.repairip.DexPatch.Patcher;
 
 import org.jf.dexlib2.Opcode;
+import org.jf.dexlib2.iface.ClassDef;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.instruction.Instruction;
+import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableMethod;
 import org.jf.dexlib2.immutable.ImmutableMethodImplementation;
 import org.jf.dexlib2.immutable.instruction.ImmutableInstruction10x;
@@ -35,12 +37,13 @@ import org.jf.dexlib2.immutable.reference.ImmutableMethodReference;
 import org.jf.dexlib2.immutable.reference.ImmutableTypeReference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 /*
  * Created by aantik
- * 11/11/2024
+ * 11/15/2026
  *
  *   ⋆   ႔ ႔
  *     ᠸ^ ^ ⸝⸝
@@ -50,29 +53,38 @@ import java.util.List;
  * Fox Mode 🍺
  */
 
-
-/**
- * Generates synthetic bytecode methods for Pairip logging registration.
- */
-public class PairipMethodGenerator {
+public class ObjectClassGenerator {
 
     /**
-     * Creates the static {@code pairip()} method that passes junk classes to {@code PairipLog.put(Class)}.
-     *
-     * @param definingClass class descriptor in which the method will be defined
-     * @param junkClasses list of junk class descriptors to register
-     * @return synthetic {@code pairip()} method definition
+     * generates Object class and registers junk classes with RePairipLog ;
+     * @param mJunkClasses
+     * @return
      */
-    public static Method createPairipMethod(String definingClass, List<String> junkClasses) {
-        List<Instruction> instructions = new ArrayList<>();
-        for (String type : junkClasses) {
-            instructions.add(new ImmutableInstruction21c(Opcode.CONST_CLASS, 0, new ImmutableTypeReference(type)));
-            instructions.add(new ImmutableInstruction35c(
-                    Opcode.INVOKE_STATIC, 1, 0, 0, 0, 0, 0,
-                    new ImmutableMethodReference("Lcom/pairip/PairipLog;", "put", Collections.singletonList("Ljava/lang/Class;"), "V")
-            ));
+    public static ClassDef createClassDef(Collection<String> mJunkClasses) {
+
+        String mClass = "Lcom/aantik/vmrunnerlogger/Object;";
+        String mLogger = "Lcom/aantik/vmrunnerlogger/RePairipLog;";
+
+        List<Instruction> mCode = new ArrayList<Instruction>();
+
+        mCode.add(new ImmutableInstruction21c(Opcode.NEW_INSTANCE, 0, new ImmutableTypeReference(mLogger)));
+
+        mCode.add(new ImmutableInstruction35c(Opcode.INVOKE_DIRECT, 1, 0, 0, 0, 0, 0, new ImmutableMethodReference(mLogger, "<init>", null, "V")));
+
+        mCode.add(new ImmutableInstruction35c(Opcode.INVOKE_VIRTUAL, 1, 0, 0, 0, 0, 0, new ImmutableMethodReference("Ljava/lang/Thread;", "start", null, "V")));
+
+        for (String mType : mJunkClasses) {
+
+            mCode.add(new ImmutableInstruction21c(Opcode.CONST_CLASS, 1, new ImmutableTypeReference(mType)));
+            mCode.add(new ImmutableInstruction35c(Opcode.INVOKE_VIRTUAL, 2, 0, 1, 0, 0, 0, new ImmutableMethodReference(mLogger, "put", Collections.singletonList("Ljava/lang/Class;"), "V")));
+
         }
-        instructions.add(new ImmutableInstruction10x(Opcode.RETURN_VOID));
-        return new ImmutableMethod(definingClass, "pairip", null, "V", 0x08, null, null, new ImmutableMethodImplementation(1, instructions, null, null));
+
+        mCode.add(new ImmutableInstruction10x(Opcode.RETURN_VOID));
+
+        Method mMethod = new ImmutableMethod(mClass, "pairip", null, "V", 0x9, null, null, new ImmutableMethodImplementation(2, mCode, null, null));
+
+        return new ImmutableClassDef(mClass, 0x1, "Ljava/lang/Object;", null, "Object.java", null, null, null, Collections.singletonList(mMethod), null);
     }
 }
+

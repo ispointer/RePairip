@@ -23,7 +23,7 @@
 
 package com.repairip;
 
-import com.repairip.DexPatch.DexPatcher;
+import com.repairip.DexPatch.Patcher.MainPatcher;
 import com.repairip.DexPatch.Translation.TranslationPatcher;
 import com.repairip.DexCrc32Patch.DexCrc32Patcher;
 import com.repairip.ManifestPatch.ManifestPatcher;
@@ -249,12 +249,7 @@ public class Main {
 
                 List<String> mJunk = new ArrayList<String>();
 
-                try {
-                    mJunk = DexPatcher.patch(mModule);
-                } catch (Exception mError) {
-                    SpannableBanner.printError("Patching failed : "
-                            + mError.getMessage());
-                }
+                mJunk = MainPatcher.patch(mModule);
 
                 String mName = mInput.getName();
                 int mDot = mName.lastIndexOf('.');

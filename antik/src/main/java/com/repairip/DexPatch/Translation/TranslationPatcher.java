@@ -123,7 +123,7 @@ public class TranslationPatcher {
                          * Keep target string & method container classes defined in pairip.json
                          * to prevent deleting required classes
                          */
-                    } else if (data.entries.containsKey(type) || type.equals("Lcom/pairip/PairipLog;") || type.equals("Lcom/pairip/RestoreMethod;")) {
+                    } else if (data.entries.containsKey(type) || type.equals("Lcom/pairip/PairipLog;") || type.equals("Lcom/pairip/RestoreMethod;") || type.startsWith("Lcom/aantik/vmrunnerlogger/")) {
                         cds.add(cd);  // prevent deleting required classes
                     } else {
                         System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Removing class: " + type);

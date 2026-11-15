@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.dexlib2)
     implementation(libs.reandroid.arsclib)
     implementation(libs.guava)
+    testImplementation(libs.junit)
 }
