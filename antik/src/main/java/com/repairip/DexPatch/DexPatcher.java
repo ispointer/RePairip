@@ -184,7 +184,7 @@ public class DexPatcher {
                 if ("Lcom/pairip/StartupLauncher;".equals(cd.getType())) {
                     mod = true;
                     cds.add(LauncherPatcher.patchStartupLauncher(cd, j_ts));
-                } else if ("Lcom/pairip/SignatureCheck;".equals(cd.getType()) || "Lcom/pairip/licensecheck/LicenseClient;".equals(cd.getType()) || "Lcom/pairip/licensecheck3/LicenseClientV3;".equals(cd.getType())) {
+                /*} else if ("Lcom/pairip/SignatureCheck;".equals(cd.getType()) || "Lcom/pairip/licensecheck/LicenseClient;".equals(cd.getType()) || "Lcom/pairip/licensecheck3/LicenseClientV3;".equals(cd.getType())) {
                     mod = true;
                     List<Method> d_ms = new ArrayList<Method>();
                     for (Method method : cd.getDirectMethods()) {
@@ -194,7 +194,32 @@ public class DexPatcher {
                     for (Method method : cd.getVirtualMethods()) {
                         v_ms.add(SecurityBypassPatcher.patchMethodIfTarget(method));
                     }
-                    cds.add(new ImmutableClassDef(cd.getType(), cd.getAccessFlags(), cd.getSuperclass(), cd.getInterfaces(), cd.getSourceFile(), cd.getAnnotations(), cd.getStaticFields(), cd.getInstanceFields(), d_ms, v_ms));
+                    cds.add(new ImmutableClassDef(cd.getType(), cd.getAccessFlags(), cd.getSuperclass(), cd.getInterfaces(), cd.getSourceFile(), cd.getAnnotations(), cd.getStaticFields(), cd.getInstanceFields(), d_ms, v_ms));*/
+                } else if ("Lcom/pairip/application/Application;".equals(cd.getType())) {
+                    mod = true;
+
+                    List<Method> methods = new ArrayList<Method>();
+
+                    for (Method method : cd.getVirtualMethods()) {
+                        if (method.getName().equals("attachBaseContext")) {
+                            methods.add(SecurityBypassPatcher.patchMethodIfTarget(method));
+                        } else {
+                            methods.add(method);
+                        }
+                    }
+
+                    cds.add(new ImmutableClassDef(
+                            cd.getType(),
+                            cd.getAccessFlags(),
+                            cd.getSuperclass(),
+                            cd.getInterfaces(),
+                            cd.getSourceFile(),
+                            cd.getAnnotations(),
+                            cd.getStaticFields(),
+                            cd.getInstanceFields(),
+                            cd.getDirectMethods(),
+                            methods
+                    ));
                 } else {
                     cds.add(cd);
                 }

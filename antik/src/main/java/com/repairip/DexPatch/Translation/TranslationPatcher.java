@@ -242,12 +242,12 @@ public class TranslationPatcher {
     }
 
     private static PendingDex loadRestoreMethodDex(Set<String> existingClassTypes) throws Exception {
-        try (InputStream input = Main.class.getResourceAsStream("/restoreMethod.dex")) {
+        try (InputStream input = Main.class.getResourceAsStream("/restore.dex")) {
             if (input == null) {
-                throw new FileNotFoundException("Missing resource: /restoreMethod.dex");
+                throw new FileNotFoundException("Missing resource: /restore.dex");
             }
-            PendingDex pendingDex = pendingDexFromBytes("restoreMethod.dex", readAllBytes(input), "restore_method");
-            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Loaded classes from restoreMethod.dex");
+            PendingDex pendingDex = pendingDexFromBytes("restore.dex", readAllBytes(input), "restore_method");
+            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Loaded classes from restore.dex");
             return pendingDex.isFullyPresentIn(existingClassTypes) ? null : pendingDex;
         }
     }

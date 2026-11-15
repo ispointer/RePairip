@@ -22,20 +22,13 @@
  */
 
 package com.repairip.DexPatch.Logging;
-
-import com.repairip.Utils.SpannableBanner;
-
-import org.jf.dexlib2.Opcode;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.instruction.Instruction;
+import org.jf.dexlib2.iface.instruction.ReferenceInstruction;
 import org.jf.dexlib2.immutable.ImmutableMethod;
 import org.jf.dexlib2.immutable.ImmutableMethodImplementation;
-import org.jf.dexlib2.immutable.instruction.ImmutableInstruction10x;
-import org.jf.dexlib2.immutable.instruction.ImmutableInstruction11n;
-import org.jf.dexlib2.immutable.instruction.ImmutableInstruction11x;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -63,51 +56,34 @@ public class SecurityBypassPatcher {
      * @return patched method if matching target security check, or original method
      */
     public static Method patchMethodIfTarget(Method method) {
-        String name = method.getName();
-        if ("verifySignatureMatches".equals(name)) {
-            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Bypassing verifySignatureMatches");
-            List<Instruction> instructions = Arrays.asList(
-                    new ImmutableInstruction11n(Opcode.CONST_4, 0, 1),
-                    new ImmutableInstruction11x(Opcode.RETURN, 0)
-            );
-            return new ImmutableMethod(
-                    method.getDefiningClass(),
-                    name,
-                    method.getParameters(),
-                    method.getReturnType(),
-                    method.getAccessFlags(),
-                    method.getAnnotations(),
-                    method.getHiddenApiRestrictions(),
-                    new ImmutableMethodImplementation(1, instructions, null, null)
-            );
-        } else if ("verifyIntegrity".equals(name)) {
-            System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Bypassing " + name);
-            String returnType = method.getReturnType();
-            List<Instruction> instructions;
-            if ("V".equals(returnType)) {
-                instructions = Collections.singletonList(new ImmutableInstruction10x(Opcode.RETURN_VOID));
-            } else if (returnType.startsWith("L") || returnType.startsWith("[")) {
-                instructions = Arrays.asList(
-                        new ImmutableInstruction11n(Opcode.CONST_4, 0, 0),
-                        new ImmutableInstruction11x(Opcode.RETURN_OBJECT, 0)
-                );
-            } else {
-                instructions = Arrays.asList(
-                        new ImmutableInstruction11n(Opcode.CONST_4, 0, 1),
-                        new ImmutableInstruction11x(Opcode.RETURN, 0)
-                );
+        List<Instruction> instructions = new ArrayList<Instruction>();
+
+        for (Instruction instruction : method.getImplementation().getInstructions()) {
+            if (instruction instanceof ReferenceInstruction) {
+                String ref = ((ReferenceInstruction) instruction).getReference().toString();
+
+                if (ref.equals("Lcom/pairip/SignatureCheck;->verifyIntegrity(Landroid/content/Context;)V")) {
+                    continue;
+                }
             }
-            return new ImmutableMethod(
-                    method.getDefiningClass(),
-                    name,
-                    method.getParameters(),
-                    returnType,
-                    method.getAccessFlags(),
-                    method.getAnnotations(),
-                    method.getHiddenApiRestrictions(),
-                    new ImmutableMethodImplementation(1, instructions, null, null)
-            );
+
+            instructions.add(instruction);
         }
-        return method;
+
+        return new ImmutableMethod(
+                method.getDefiningClass(),
+                method.getName(),
+                method.getParameters(),
+                method.getReturnType(),
+                method.getAccessFlags(),
+                method.getAnnotations(),
+                method.getHiddenApiRestrictions(),
+                new ImmutableMethodImplementation(
+                        method.getImplementation().getRegisterCount(),
+                        instructions,
+                        method.getImplementation().getTryBlocks(),
+                        method.getImplementation().getDebugItems()
+                )
+        );
     }
 }
