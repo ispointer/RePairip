@@ -175,3 +175,27 @@ adb shell pm install -r /data/local/tmp/app-signed.apk
   flow.
 - The translated build injects the captured values back (`SPUT_OBJECT` in
   `MethodMaker`), so recapturing from it returns the same dictionary.
+
+## Frida-based libsurgery
+
+`libsurgery.py` replaces the old host `su` / `/proc/<pid>/mem` libsurgery CLI.
+It attaches with Frida to a running app, reads the app's own APK paths from
+`ApplicationInfo`, pulls those APKs with `adb`, and applies the same ELF patch
+to every `lib/arm64-v8a/*.so` except `libpairipcore.so`. It writes
+`*_patched.so` files; it does not modify the installed app.
+
+```bash
+python3 frida/libsurgery.py -p com.example.app -o libsurgery
+# or launch the app first through adb:
+python3 frida/libsurgery.py -p com.example.app -o libsurgery --launch
+```
+
+Requirements: root `frida-server` 16.x, matching Python `frida`, `adb`, and an
+unlocked running app. It resolves the PID with `adb shell pidof` and attaches by
+PID; Frida's name-based process lookup can miss app processes on this device.
+The script deliberately does not use Frida spawn: spawning with
+`frida-server` 16 crashed `system_server` on the tested Samsung Android 15
+device. The app must already be running (use `--launch` or launch it manually).
+The patcher is verified byte-for-byte against the old Java `LibraryPatcher` on
+MP Saara 8.7.2, including a freshly installed Play Store copy
+(`libruntimecore.so`, `libruntimecore_kotlin.so`, `libsqliteX.so`).

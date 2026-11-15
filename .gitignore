@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/antik/build/
+__pycache__/
