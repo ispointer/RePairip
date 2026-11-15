@@ -1,3 +1,0 @@
-This is a resource file for the antik project.
-Project: RePairip
-Subproject: antik
