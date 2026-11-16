@@ -42,7 +42,7 @@ import java.nio.charset.StandardCharsets;
  */
 
 public class Update {
-    public static final String CURRENT_VERSION = "1.8.30";
+    public static final String CURRENT_VERSION = "1.9.10";
 
     /**
      * @apiNote This method fetches the latest release information from the

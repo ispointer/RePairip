@@ -14,7 +14,7 @@ This guide removes CorePatch and the patched install, not root.
   client. Frida 17 removed the built-in Java bridge; `capture_pairip.py` exits
   on 17.x. Verified with 16.7.19 on both sides.
 - `adb`, Java 17+, Python 3.
-- **RePairip 1.8.30+** from
+- **RePairip 1.9.10+** from
   [Releases](https://github.com/ispointer/RePairip/releases/latest). It writes
   `junk_classes.txt` during the merge step.
 
@@ -22,7 +22,7 @@ This guide removes CorePatch and the patched install, not root.
 
 ```bash
 curl -L -o RePairip.jar \
-  https://github.com/ispointer/RePairip/releases/download/1.8.30/RePairip.1.8.30.jar
+  https://github.com/ispointer/RePairip/releases/download/1.9.10/RePairip.1.9.10.jar
 java -jar RePairip.jar -v
 ```
 
@@ -166,7 +166,7 @@ adb shell pm install -r /data/local/tmp/app-signed.apk
 - `spawn failed (... ptrace pokedata)` — launch the app normally and drop
   `--spawn`.
 - `junk_classes.txt` missing or empty — the APK is not PairIP-protected, or the
-  JAR is older than 1.8.30 (use `frida/JunkClasses.java` to generate the list).
+  JAR is older than 1.9.10 (use `frida/JunkClasses.java` to generate the list).
 
 ## Notes
 

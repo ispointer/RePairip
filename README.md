@@ -2,7 +2,7 @@
 
 <img align="right" src="preview/re.png" width="250" alt="RePairip Logo">
 
-> **Current version:** 1.8.30 | **Language:** Java 17
+> **Current version:** 1.9.10 | **Language:** Java 17
 
 RePairip is a Google加固 reverse engineering tool that can dump all VMRunner snapshots and fully repack Android applications, removing protection layers completely.
 
@@ -78,6 +78,6 @@ Requires frida-server and a matching Frida Python client on 16.x (Frida 17
 removed the Java bridge). Root is still required for frida-server to attach to
 the app; the Frida path only removes CorePatch and the patched-APK install.
 Builds from `main` write `junk_classes.txt` themselves; the `JunkClasses.java`
-step is only needed for the 1.8.30 release JAR. No CorePatch, no `su` install,
+step is only needed for the 1.9.10 release JAR. No CorePatch, no `su` install,
 no base.apk replacement. See `frida/README.md` for the full procedure and
 troubleshooting.
