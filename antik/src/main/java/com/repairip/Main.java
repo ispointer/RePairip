@@ -24,8 +24,8 @@
 package com.repairip;
 
 import com.repairip.DexPatch.Patcher.MainPatcher;
-import com.repairip.DexPatch.Translation.TranslationPatcher;
 import com.repairip.DexCrc32Patch.DexCrc32Patcher;
+import com.repairip.DexPatch.Translation.TranslationPatcherMain;
 import com.repairip.ManifestPatch.ManifestPatcher;
 import com.repairip.Utils.ApkExtractor;
 import com.repairip.Utils.Loading;
@@ -214,7 +214,7 @@ public class Main {
 
                     System.out.println(SpannableBanner.CYAN + "[INFO] " + SpannableBanner.RESET + "Starting Translation Patch ");
 
-                    TranslationPatcher.patch(mModule, mJson);
+                    TranslationPatcherMain.patch(mModule, mJson);
 
                     String mName = mInput.getName();
                     int mDot = mName.lastIndexOf('.');

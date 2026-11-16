@@ -26,6 +26,7 @@ package com.repairip.ManifestPatch;
 import com.reandroid.apk.ApkModule;
 import com.reandroid.app.AndroidManifest;
 import com.reandroid.arsc.chunk.xml.AndroidManifestBlock;
+import com.reandroid.arsc.chunk.xml.ResXmlAttribute;
 import com.reandroid.arsc.chunk.xml.ResXmlElement;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,63 +50,72 @@ public final class ManifestPatcher {
      * @param mModule
      */
     public static void patch(ApkModule mModule) {
+        patch(mModule, null);
+    }
+
+    /**
+     * patch AndroidManifest.xml and optionally set original Application class
+     * @param mModule
+     * @param realAppClass
+     */
+    public static void patch(ApkModule mModule, String realAppClass) {
 
         String[][] mTargets = {
                 {
-                    "id", String.valueOf(AndroidManifest.ID_requiredSplitTypes)
+                        "id", String.valueOf(AndroidManifest.ID_requiredSplitTypes)
                 },
                 {
-                    "id", String.valueOf(AndroidManifest.ID_splitTypes)
+                        "id", String.valueOf(AndroidManifest.ID_splitTypes)
                 },
                 {
-                    "id", String.valueOf(AndroidManifest.ID_isSplitRequired)
+                        "id", String.valueOf(AndroidManifest.ID_isSplitRequired)
                 },
                 {
-                    "id", String.valueOf(AndroidManifest.ID_isFeatureSplit)
-                },
-
-                {
-                    "attribute", "requiredSplitTypes"
-                },
-                {
-                    "attribute", "splitTypes"
-                },
-                {
-                    "attribute", "isSplitRequired"
-                },
-                {
-                    "attribute", "isFeatureSplit"
-                },
-                {
-                    "attribute", "split"
+                        "id", String.valueOf(AndroidManifest.ID_isFeatureSplit)
                 },
 
                 {
-                    "meta-data", "com.android.stamp.source"
+                        "attribute", "requiredSplitTypes"
                 },
                 {
-                    "meta-data", "com.android.stamp.type"
+                        "attribute", "splitTypes"
                 },
                 {
-                    "meta-data", "com.android.vending.splits"
+                        "attribute", "isSplitRequired"
                 },
                 {
-                    "meta-data", "com.android.vending.derived.apk.id"
+                        "attribute", "isFeatureSplit"
                 },
                 {
-                    "meta-data", "com.android.dynamic.apk.fused.modules"
+                        "attribute", "split"
+                },
+
+                {
+                        "meta-data", "com.android.stamp.source"
                 },
                 {
-                    "meta-data", "com.android.vending.splits.required"
+                        "meta-data", "com.android.stamp.type"
                 },
                 {
-                    "activity", "com.pairip.licensecheck.LicenseActivity"
+                        "meta-data", "com.android.vending.splits"
                 },
                 {
-                    "provider", "com.pairip.licensecheck.LicenseContentProvider"
+                        "meta-data", "com.android.vending.derived.apk.id"
                 },
                 {
-                    "uses-permission", "com.android.vending.CHECK_LICENSE"
+                        "meta-data", "com.android.dynamic.apk.fused.modules"
+                },
+                {
+                        "meta-data", "com.android.vending.splits.required"
+                },
+                {
+                        "activity", "com.pairip.licensecheck.LicenseActivity"
+                },
+                {
+                        "provider", "com.pairip.licensecheck.LicenseContentProvider"
+                },
+                {
+                        "uses-permission", "com.android.vending.CHECK_LICENSE"
                 }
         };
 
@@ -125,6 +135,20 @@ public final class ManifestPatcher {
 
         if (mElement == null) {
             return;
+        }
+
+        ResXmlElement mApplication = mManifest.getApplicationElement();
+
+        if (mApplication != null && realAppClass != null && !realAppClass.isEmpty()) {
+
+            String mCurrentApp = AndroidManifestBlock.getAndroidNameValue(mApplication);
+
+            if ("com.pairip.application.Application".equals(mCurrentApp)) {
+
+                ResXmlAttribute mAttribute = mApplication.getOrCreateAttribute("name", AndroidManifest.ID_name);
+
+                mAttribute.setValueAsString(realAppClass);
+            }
         }
 
         ArrayList<ResXmlElement> mRemoved = new ArrayList<>();
